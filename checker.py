@@ -2,7 +2,8 @@
 
 import sys
 import ssl
-from datetime import datetime
+#from datetime import datetime
+import datetime
 import pytz
 import OpenSSL
 import socket
@@ -36,12 +37,14 @@ def get_enddate( ip ):
     issuer_x509 = x509.get_issuer().commonName
     server_name = x509.get_subject().commonName
 #    print "issuer:" + issuer
-    now = datetime.now(pytz.utc)
-    begin = datetime.strptime(x509.get_notBefore(), "%Y%m%d%H%M%SZ").replace(tzinfo=pytz.UTC)
+    now = datetime.datetime.now(pytz.utc)
+    one_month = datetime.timedelta(days=30)
+    ok_time = now + one_month
+    begin = datetime.datetime.strptime(x509.get_notBefore(), "%Y%m%d%H%M%SZ").replace(tzinfo=pytz.UTC)
     begin_ok = begin < now
-    end = datetime.strptime(x509.get_notAfter(), "%Y%m%d%H%M%SZ").replace(tzinfo=pytz.UTC)
-    end_ok = end > now
-    print "%30s: certificate=%s begin=%s%s%s end=%s%s%s issuer=%s" % (ip, server_name, 
+    end = datetime.datetime.strptime(x509.get_notAfter(), "%Y%m%d%H%M%SZ").replace(tzinfo=pytz.UTC)
+    end_ok = end > ok_time
+    print "%s: certificate=%s begin=%s%s%s end=%s%s%s issuer=%s" % (ip, server_name,
             color[begin_ok], begin.strftime("%d.%m.%Y"), color['end'],
             color[end_ok], end.strftime("%d.%m.%Y"), color['end'],
             issuer_corp)
@@ -63,6 +66,9 @@ def test_conn( ip ):
     return True
 
 
-for ip in IPNetwork('194.132.85.0/24'):
-    if test_conn( str(ip) ):
-        get_enddate( str(ip) )
+networks = ['194.132.85.0/24','194.14.240.0/24','194.14.241.0/24','194.14.242.0/24','194.14.243.0/24','194.14.244.0/24','193.182.156.0/24','193.182.157.0/24','193.182.158.0/24','193.182.159.0/24','194.132.21.0/24']
+#networks = ['194.14.241.120/32']
+for network in networks:
+    for ip in IPNetwork(network):
+        if test_conn( str(ip) ):
+            get_enddate( str(ip) )
