@@ -66,8 +66,9 @@ def test_conn( ip ):
     return True
 
 
-networks = ['194.132.85.0/24','194.14.240.0/24','194.14.241.0/24','194.14.242.0/24','194.14.243.0/24','194.14.244.0/24','193.182.156.0/24','193.182.157.0/24','193.182.158.0/24','193.182.159.0/24','194.132.21.0/24']
-#networks = ['194.14.241.120/32']
+# networks: a list of networks to check in CIDR format
+networks = []
+
 for network in networks:
     for ip in IPNetwork(network):
         if test_conn( str(ip) ):
